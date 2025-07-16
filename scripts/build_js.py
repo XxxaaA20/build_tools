@@ -3,6 +3,9 @@
 import config
 import base
 import os
+import sys
+
+python_executable = sys.executable
 
 def correct_sdkjs_licence(directory):
   branding = config.option("branding")
@@ -46,7 +49,7 @@ def make():
 
   # builder
   if not isOnlyMobile:
-    base.cmd_in_dir(base_dir + "/../web-apps/translation", "python", ["merge_and_check.py"])
+    base.cmd_in_dir(base_dir + "/../web-apps/translation", python_executable, ["merge_and_check.py"])
     build_interface(base_dir + "/../web-apps/build")
     build_sdk_builder(base_dir + "/../sdkjs/build")
     base.create_dir(out_dir + "/builder")
@@ -70,7 +73,7 @@ def make():
     [os.remove(p) for p, _, _ in walklist[::-1] if len(os.listdir(p)) == 0]
 
     base.copy_file(base_dir + "/../web-apps/apps/api/documents/index.html.desktop", out_dir + "/desktop/web-apps/apps/api/documents/index.html")
-    
+
     build_interface(base_dir + "/../desktop-apps/common/loginpage/build")
     base.copy_file(base_dir + "/../desktop-apps/common/loginpage/deploy/index.html", out_dir + "/desktop/index.html")
     base.copy_file(base_dir + "/../desktop-apps/common/loginpage/deploy/noconnect.html", out_dir + "/desktop/noconnect.html")
@@ -82,9 +85,9 @@ def make():
     base.create_dir(out_dir + "/mobile/sdkjs")
     vendor_dir_src = base_dir + "/../web-apps/vendor/"
     sdk_dir_src = base_dir + "/../sdkjs/deploy/sdkjs/"
-  
+
     prefix_js = [
-      vendor_dir_src + "xregexp/xregexp-all-min.js", 
+      vendor_dir_src + "xregexp/xregexp-all-min.js",
       base_dir + "/../sdkjs/common/Native/native.js",
       base_dir + "/../sdkjs-native/common/common.js",
       base_dir + "/../sdkjs/common/Native/jquery_native.js"
@@ -135,7 +138,7 @@ def get_build_param(minimize=True):
 
 def build_sdk_desktop(directory):
   #_run_npm_cli(directory)
-  _run_npm(directory)  
+  _run_npm(directory)
   _run_grunt(directory, get_build_param() + ["--desktop=true"] + base.sdkjs_addons_param() + base.sdkjs_addons_desktop_param())
   return
 
@@ -170,13 +173,13 @@ def build_js_develop(root_dir):
   external_folder = config.option("--external-folder")
   if (external_folder != ""):
     external_folder = "/" + external_folder
-    
+
   build_sdkjs_develop(root_dir)
 
   _run_npm(root_dir + external_folder + "/web-apps/build")
   _run_npm_ci(root_dir + external_folder + "/web-apps/build/sprites")
   _run_grunt(root_dir + external_folder + "/web-apps/build/sprites", [])
-  base.cmd_in_dir(root_dir + external_folder + "/web-apps/translation", "python", ["merge_and_check.py"])
+  base.cmd_in_dir(root_dir + external_folder + "/web-apps/translation", python_executable, ["merge_and_check.py"])
 
   old_cur = os.getcwd()
   old_product_version = base.get_env("PRODUCT_VERSION")
